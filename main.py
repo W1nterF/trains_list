@@ -4,6 +4,7 @@ from itertools import chain
 
 stations_list = []
 matrix = []
+pressK = "[!] Press any button to continue..."
 
 def makeStationsList(stations_list):
     with open('test_task_data.csv', newline='') as csvfile:
@@ -52,7 +53,7 @@ def createMatrix(station_list, matrix):
                 matrix[i][j] = findMinimalPrice(start, end)
     return matrix
 
-def findBestWay(matrix):
+def findBestWay(matrix, sl):
     path = []
     counter = 0
     uniq = 0
@@ -71,18 +72,20 @@ def findBestWay(matrix):
                                and (i4 != i5) and (i4 != i6) \
                                and (i5 != i6):
                                 uniq += 1
-                                pth = (f"{i1+1} -> {i2+1} -> {i3+1} -> {i4+1} -> {i5+1} -> {i6+1}")
+                                pth = (f"{sl[i1]} -> {sl[i2]} -> {sl[i3]} -> {sl[i4]} -> {sl[i5]} -> {sl[i6]}")
                                 path.append(pth)
                                 #print(pth)
                                 if matrix[i1][i2] + matrix[i2][i3] + matrix[i3][i4] + matrix[i4][i5] + matrix[i5][i6] < minPath:
                                     minPath = matrix[i1][i2] + matrix[i2][i3] + matrix[i3][i4] + matrix[i4][i5] + matrix[i5][i6]
+                                    costLabl = (f"  {matrix[i1][i2]}  {matrix[i2][i3]}  {matrix[i3][i4]}  {matrix[i4][i5]}  {matrix[i5][i6]}")
                                     minCounter = counter
                                 counter += 1
-    #print(pth)
-    print(f"Uniq pathes = {uniq}")
-    print(f"Minimal path = {minPath}")
-    print(f"{path[minCounter]}")
+    print(f"----------RESULTS----------\nNumber of unique paths: {uniq}")
+    print(f"The price of the most advantageous path: {minPath}")
+    print(f"-----------PATH------------\n[!] Under each arrow is written the price of the trip!\n\n{path[minCounter]}")
+    print(f"{costLabl}\n---------------------------")
 
+#============MAIN=============
 print(f"----------CSV INFO----------")
 stations_list = makeStationsList(stations_list)
 print(stations_list)
@@ -90,8 +93,7 @@ print(f"Total amount of stations: {len(stations_list)}\n----------COST TABLE----
 
 matrix = createMatrix(stations_list, matrix)
 printArray(matrix, stations_list)
-input()
-findBestWay(matrix)
+input(pressK)
+findBestWay(matrix, stations_list)
 
-input()
-
+input(pressK)
