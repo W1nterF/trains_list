@@ -1,42 +1,97 @@
 import csv
-trains_list = []
-stations_list = []
-good_list = []
-min_price = float()
-min_price = 9999
-sred = 0;
-i = 1
-with open('test_task_data.csv', newline='') as csvfile:
-    strtStation = "1921"
-    finishStation = "1999"
-    reader = csv.DictReader(csvfile, delimiter=";")
-    print("Train number:\tOtpravlenie:\tPribitie\tCost:")
-    for row in reader:
-        #print(i, row['trNum'], row['otprSt'],row['stPrib'], row['cost'])
-        if row['otprSt'] == strtStation and row['stPrib'] == finishStation:
-            if float(row['cost']) < min_price:
-                min_price = float(row['cost'])
-            else:
-                pass
-            good_list.append(row['trNum'])
-            print(f"{row['trNum']}\t\t{row['otprSt']}\t\t{row['stPrib']}\t\t{row['cost']}")
-        trains_list.append(row['trNum'])
-        i += 1
-        sred += float(row['cost'])
-        try:
-            if row['otprSt'] in stations_list:
-                raise Exception()
-            stations_list.append(row['otprSt'])
-        except:
-            pass
+import numpy as np
+from itertools import chain
 
-sredc = sred/float(len(trains_list))
-if min_price == 9999:
-    print("Minimal cost: 0")
-else:
-    print(f"Minimal cost: {min_price}")
-#print(trains_list)
-print(f"Total amount of trains: {len(trains_list)}")
+stations_list = []
+matrix = []
+
+def makeStationsList(stations_list):
+    with open('test_task_data.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=";")
+        for row in reader:
+            try:
+                if row['otprSt'] in stations_list:
+                    raise Exception()
+                stations_list.append(row['otprSt'])
+            except:
+                pass
+    return sorted(stations_list)
+
+def findMinimalPrice(strtStation,finishStation):
+    min_price = float;
+    min_price = 9999
+    
+    with open('test_task_data.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=";")
+        for row in reader:
+            if row['otprSt'] == strtStation and row['stPrib'] == finishStation:
+                if float(row['cost']) < min_price:
+                    min_price = float(row['cost'])
+                else:
+                    pass
+    return min_price
+
+def printArray(matrix, stations_list):
+    k = 0
+    for j in stations_list:
+        print('    ',j, end="")
+    print(f"\n    ===================================================")
+    for i in matrix:
+        print(stations_list[k]+"|"+"\t".join(list(map(str, i))))
+        k += 1
+
+def createMatrix(station_list, matrix):
+    matrix = np.array([ [0]*6 for i in range(6) ], float)
+    for i in range(6):
+        start = station_list[i]
+        for j in range(6):
+            end = station_list[j]
+            if start == end:
+                matrix[i][j] = 0
+            else:
+                matrix[i][j] = findMinimalPrice(start, end)
+    return matrix
+
+def findBestWay(matrix):
+    path = []
+    counter = 0
+    uniq = 0
+    minPath = 99999999
+    minCounter = 0
+
+    for i1 in range(6):
+        for i2 in range(6):
+            for i3 in range(6):
+                for i4 in range(6):
+                    for i5 in range(6):
+                        for i6 in range(6):
+                            if (i1 != i2) and (i1 != i3) and (i1 != i4) and (i1 != i5) and (i1 != i6) \
+                               and (i2 != i3) and (i2 != i4) and (i2 != i5) and (i2 != i6) \
+                               and (i3 != i4) and (i3 != i5) and (i3 != i6) \
+                               and (i4 != i5) and (i4 != i6) \
+                               and (i5 != i6):
+                                uniq += 1
+                                pth = (f"{i1+1} -> {i2+1} -> {i3+1} -> {i4+1} -> {i5+1} -> {i6+1}")
+                                path.append(pth)
+                                #print(pth)
+                                if matrix[i1][i2] + matrix[i2][i3] + matrix[i3][i4] + matrix[i4][i5] + matrix[i5][i6] < minPath:
+                                    minPath = matrix[i1][i2] + matrix[i2][i3] + matrix[i3][i4] + matrix[i4][i5] + matrix[i5][i6]
+                                    minCounter = counter
+                                counter += 1
+    #print(pth)
+    print(f"Uniq pathes = {uniq}")
+    print(f"Minimal path = {minPath}")
+    print(f"{path[minCounter]}")
+
+print(f"----------CSV INFO----------")
+stations_list = makeStationsList(stations_list)
 print(stations_list)
-print(f"Total amount of stations: {len(stations_list)}")
-print(f"Average cost if: {sredc}({sred},{len(trains_list)})")
+print(f"Total amount of stations: {len(stations_list)}\n----------COST TABLE----------\n")
+
+matrix = createMatrix(stations_list, matrix)
+printArray(matrix, stations_list)
+input()
+findBestWay(matrix)
+
+input()
+
